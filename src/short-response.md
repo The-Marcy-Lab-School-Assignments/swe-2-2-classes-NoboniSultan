@@ -18,7 +18,25 @@ How would you explain to a budding developer what the drawbacks of using factory
 ## Response 1
 
 
----
+### Factory Functions vs Classes
+**Factory functions** can make objects with the same structure, but they have some drawbacks. Every time you create a new object, the function makes a new copy of each method, which can waste memory. Factory functions also don’t use prototypes, so objects can’t easily share methods. **Classes** are better because they automatically use prototypes, so all objects share the same methods and the code is easier to manage.
+#### Example:
+```js
+// Factory function
+function makeUser(name) {
+  return { name, greet() { console.log(`Hi, I'm ${this.name}`); } };
+}
+
+// Class
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+  greet() { console.log(`Hi, I'm ${this.name}`); }
+}
+```
+Classes reuse the same `greet()` method, while the factory function makes a new one each time.
+
 
 ## Prompt 2
 
@@ -27,7 +45,29 @@ Explain what factors you should consider when deciding to make a property/method
 ## Response 2
 
 
----
+### When to Make a Property or Method Private
+You should make something private when you don’t want other parts of your code to change or see it directly. Private properties protect data and help prevent mistakes. For example, if you have a bank account, the balance should only be changed using methods like `deposit()` or `withdraw()`, not directly from outside the class.
+#### Example:
+```js
+class BankAccount {
+  #balance = 0;
+
+  deposit(amount) {
+    this.#balance += amount;
+  }
+
+  getBalance() {
+    return this.#balance;
+  }
+}
+
+const account = new BankAccount();
+account.deposit(100);
+console.log(account.getBalance()); // 100
+// account.#balance = 999; //Not allowed
+```
+This keeps the balance safe and only changeable through the **class**.
+
 
 ## Prompt 3
 
@@ -35,7 +75,19 @@ Explain what factors you should consider when deciding to make a property/method
 
 ## Response 3
 
----
+### When to Make a Property or Method Static
+A property or method should be **static** when it belongs to the class itself, not to any individual object. Static methods are good for **helper functions** or things that apply to all objects equally. They don’t need access to `this` or instance data.
+#### Example:
+```js
+class MathHelper {
+  static add(a, b) {
+    return a + b;
+  }
+}
+
+console.log(MathHelper.add(3, 4)); // 7
+```
+You can call `MathHelper.add()` directly without making a new object, since it’s a **shared method**.
 
 ## Prompt 4
 
@@ -56,3 +108,22 @@ class Vault {
 Identify what the mistake is, explain why it is a problem, and suggest a way to fix it.
 
 ## Response 4
+
+### Logical Error in the Vault Class
+The problem is that `listSecrets()` returns the private array `#secrets` directly. That breaks **encapsulation** because whoever calls it could still change the array outside the class. To fix it, you should return a **copy** of the array instead of the original.
+
+#### Fix suggestion:
+```js
+class Vault {
+  #secrets = [];
+  addSecret(newSecret) {
+    this.#secrets.push(newSecret);
+  }
+  listSecrets() {
+    return [...this.#secrets]; // Return a copy
+  }
+}
+```
+Now the secrets stay private and can’t be changed from outside the class.
+
+
